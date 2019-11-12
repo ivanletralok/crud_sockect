@@ -1,0 +1,122 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+<!-- Compiled and minified CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+
+<script>
+    $(document).ready(function() {
+        // Connect to our node/websockets server
+        var socket = io.connect('http://localhost:3000');
+
+        socket.on('client', function(data) {
+            var tbody = '';
+
+            for (var i = 0; i < data.length; i++) {
+                tbody += '<tr><td>' + data[i].nombres + '</td>' +
+                    " <td> " + data[i].direccion + "</td> " +
+                    " <td> " + data[i].numero_cuenta + "</td> " +
+                    " <td> " + data[i].saldo +
+                    '</td></tr>';
+            }
+            $('#tbdy').html(tbody)
+        })
+
+        socket.on('nuevo cliente', function(data) {
+            console.log(data);
+            $('#tbdy').append('<tr><td>' + data.nombres + '</td>' +
+                " <td> " + data.direccion + "</td> " +
+                " <td> " + data.numero_cuenta + "</td> " +
+                " <td> " + data.saldo +
+                '</td></tr>')
+        })
+
+        function showmodal() {
+            $('.modal').modal();
+        }
+
+        $('#btnGuardar').click(function() {
+
+            nombre = $('#nombre').val();
+            direccion = $('#direccion').val();
+            numerocuenta = $('#numerocuenta').val();
+
+            socket.emit('nuevo cliente', {
+                nombres: nombre,
+                direccion: direccion,
+                numero_cuenta: numerocuenta,
+                saldo: 0,
+                movimiento_idmovimiento: 1
+            })
+
+        })
+        $('#btnmodal').click(function() {
+            console.log("hola");
+            showmodal();
+        })
+
+
+    })
+</script>
+
+
+<div class="container">
+
+    <table class="striped">
+        <thead>
+            <tr>
+                <th>Nombres</th>
+                <th>Direccion</th>
+                <th>Numero Cuenta</th>
+                <th> Saldo </th>
+            </tr>
+        </thead>
+
+        <tbody id="tbdy">
+
+        </tbody>
+    </table>
+
+    <button id="btnmodal" data-target="modal1" class="btn modal-trigger">Añadir Cliente</button>
+
+    <!-- Modal Structure -->
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <h5>Añadir Cliente</h5>
+            <div class="row">
+                <form class="col s12">
+                    <div class="row">
+
+                        <div class="input-field col s6">
+                            <input id="nombre" type="text" class="validate">
+                            <label for="last_name">Nombres</label>
+                        </div>
+
+                        <div class="input-field col s6">
+                            <input id="direccion" type="text" class="validate">
+                            <label for="last_name">Direccion</label>
+                        </div>
+
+                        <div class="input-field col s6">
+                            <input id="numerocuenta" type="text" class="validate">
+                            <label for="last_name">Numero Cuenta</label>
+                        </div>
+                    </div>
+
+                    <button id="btnGuardar" class="btn waves-effect waves-light">Crear
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cerrar</a>
+        </div>
+    </div>
+
+</div>
