@@ -19,32 +19,56 @@ db.connect(function(err) {
     }
 })
 
+
 var cliente = [];
 var clientesInicial = false;
 
+var ciudad = [];
+var ciudadi = false;
+
 io.sockets.on('connect', function(socket) {
 
+
     if (!clientesInicial) {
-        db.query('SELECT * FROM clientes').on('result', function(data) {
+        db.query('SELECT cc_cliente, nombres, apellidos, direccion, email, ciudadcol, idciudad FROM cliente inner join ciudad on (ciudad_idciudad = idciudad)').on('result', function(data) {
             cliente.push(data);
         }).on('end', function() {
             socket.emit('client', cliente);
         })
 
+
+
         clientesInicial = true;
     } else {
         socket.emit('client', cliente);
+
+    }
+
+    if (!ciudadi) {
+        db.query('SELECT * FROM ciudad').on('result', function(datas) {
+            ciudad.push(datas);
+        }).on('end', function() {
+            socket.emit('ciudad', ciudad);
+        })
+
+        ciudadi = true;
+    } else {
+        socket.emit('ciudad', ciudad);
+
     }
 
 
     socket.on('nuevo cliente', function(data) {
         cliente.push(data);
-        io.sockets.emit('nuevo cliente', data)
-        console.log(data);
 
-        db.query('INSERT INTO clientes (nombres, direccion, numero_cuenta, saldo, movimiento_idmovimiento) VALUES ("' + data.nombres + '" ,"' + data.direccion + '" ,"' + data.numero_cuenta + ' ","' + data.saldo + '" ,"' + data.movimiento_idmovimiento + '" )')
+        db.query('INSERT INTO cliente (cc_cliente, nombres, apellidos, direccion, email, ciudad_idciudad) VALUES ("' + data.cc_cliente + '" ,"' + data.nombres + '" ,"' + data.apellidos + ' ","' + data.direccion + '" ,"' + data.email + '" ,"' + data.ciudad_idciudad + '" )')
 
     })
+
+    socket.on("clickNuevo", (data) => {
+        console.log(data);
+    });
+
 
 
 })
