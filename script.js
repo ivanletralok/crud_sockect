@@ -1,6 +1,7 @@
 $(document).ready(function() {
     var socket = io.connect('http://localhost:3000');
 
+    /**cantidad de usuario conectados */
     socket.on('users connected', function(data) {
         $('#usersConnected').html('Users connected: ' + data)
     })
@@ -10,14 +11,13 @@ $(document).ready(function() {
 
     getall();
 
-    // Connect to our node/websockets server
+    /**aqui se dibuja la tabla de la vista del administrador */
 
     function getall() {
         // socket = io.connect('http://localhost:3000');
 
         socket.on('client', function(data) {
             var tbody = '';
-            console.clear();
             for (var i = 0; i < data.length; i++) {
                 tbody += '<tr><td>' + data[i].cc_cliente + '</td>' +
                     " <td> " + data[i].nombres + "</td> " +
@@ -32,20 +32,15 @@ $(document).ready(function() {
             $('#tbdy').html(tbody)
 
         })
-
-
     }
 
-
-    // $('#ingresar').click(function() {
-    //     var valor = $('#cedulaI').val();
-
-    //     console.log("data : " + "valor : " + valor);
+    /**se dibuja la tabla de los clientes que esten registrados en la base de datos
+     * para poder hacer el tipo de transaccion
+     */
 
     socket.on('client', function(data) {
         var tbody = '';
         var cont = 0;
-        console.clear();
 
         $('#ingresar').click(function() {
             var val = $('#cedulaI').val();
@@ -59,8 +54,10 @@ $(document).ready(function() {
                         " <td> " + data[i].email + "</td> " +
                         " <td> " + data[i].numero_cuenta + "</td> " +
                         " <td> " + data[i].saldo + "</td> " +
-                        " <td class='btn' id='btn1'> " + '<i class="material-icons" id=' + data[i].numero_cuenta + ' >control_point</i> ' +
+                        " <td class='btn'> " + '<i class="material-icons" id=' + data[i].numero_cuenta + ' >control_point</i> ' +
                         '</td></tr>';
+
+
                     break;
                 }
 
@@ -69,16 +66,18 @@ $(document).ready(function() {
             if (cont == 0) {
                 swal("usuario no registrado");
             }
-            $('#tableCliente').html(tbody)
-
             var val = $('#cedulaI').val('');
+            $('#tableCliente').html(tbody);
+
 
         })
 
     })
 
+
     // })
 
+    /**se carga el boton select con las ciudades que estan en la base de datos */
 
     socket.on('ciudad', function(datas) {
 
@@ -91,6 +90,7 @@ $(document).ready(function() {
 
     });
 
+    /**se cargan los tipos de transacion en un input select */
     socket.on('tipoM', function(datas) {
 
         if (!tablaLLenas)
@@ -112,6 +112,8 @@ $(document).ready(function() {
         $('#exampleModal').modal('hide');
     }
 
+    /**funcion que limpia input despues de guardar */
+
     function limpiarInput() {
         cedula = $('#cedula').val('');
         nombres = $('#nombres').val('');
@@ -122,19 +124,13 @@ $(document).ready(function() {
 
     }
 
-    /*     <!-- socket.on('nuevo cliente', function(data) {
-             console.log(data);
-             $('#tbdy').append('<tr><td>' + data.cc_cliente + '</td>' +
-                 " <td> " + data.nombres + "</td> " +
-                 " <td> " + data.apellidos + "</td> " +
-                 " <td> " + data.direccion +
-                 " <td> " + data.email + "</td> " +
-                 " <td> " + data.ciudadcol +
-                 '</td></tr>')
-         }) -->*/
+
+    /**aqui se emite un nuevo cliente al servidor  para insertar en la base de datos 
+     * 
+     * dandole click al boton guardar
+     */
 
     $('#btnGuardar').click(function() {
-
 
         var randon = Math.round(Math.random() * 100000);
         var saldo = 0;
@@ -178,12 +174,14 @@ $(document).ready(function() {
     //     showmodal();
     // })
 
+    var c = 0;
+
+    /**aqui se inserta un nuevo movimiento en la base de datos
+     */
     $('table').delegate(".btn", "click", function(e) {
 
-        console.log(e.target.id)
+        //  console.log(e.target.id)
         var cuent = e.target.id;
-
-
         var hoy = new Date();
         var dd = hoy.getDate();
         var mm = hoy.getMonth() + 1;
@@ -191,8 +189,8 @@ $(document).ready(function() {
 
         var fecha = yyyy + '/' + mm + '/' + dd;
 
-        v = 0;
         showmodal();
+
         $('#consignar').click(function() {
             monto = $('#monto').val();
             tipom = $('#selectt').val();
@@ -204,22 +202,27 @@ $(document).ready(function() {
                     fk_dtipo_movimiento: tipom,
                     fk_numero_cuenta: cuent
                 });
+                $('#monto').val('');
+                $('#selectt').val('');
 
                 swal({
                     title: "Realizado con exito!",
                     icon: "success",
                 });
+
                 ocultarmodal1();
 
+
             } else {
-                swal("error campo vacio")
+
+                swal({
+                    title: "Realizado con exito!",
+                    icon: "success",
+                });
+
             }
 
         })
-        $('#monto').val('');
-        $('#selectt').val('');
-
-
     });
 
     function ocultarmodal1() {

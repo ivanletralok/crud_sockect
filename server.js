@@ -36,6 +36,8 @@ var tipoMov = [];
 
 io.sockets.on('connect', function(socket) {
 
+    /**obtener los usuarios conectados */
+
     socketCount++
     // Let all sockets know how many are connected
     io.sockets.emit('users connected', socketCount)
@@ -47,13 +49,14 @@ io.sockets.on('connect', function(socket) {
     })
 
 
+    /**se hace la inserccion ala tabla movimiento en la base de datos */
+
     socket.on('nuevoMov', function(dato) {
-        movimiento.push(dato);
-
         console.log(dato)
-
         db.query('INSERT INTO movimiento (valor_movimiento, fecha_mov, fk_dtipo_movimiento, fk_numero_cuenta) VALUES (' + dato.valor_movimiento + ', "' + dato.fecha_mov + '", ' + dato.fk_dtipo_movimiento + ', ' + dato.fk_numero_cuenta + ')');
     })
+
+    /**estraer todos los clientes ya registrados en la base de datos */
 
     if (!clientesInicial) {
         db.query('SELECT cc_cliente, nombres, apellidos, direccion, email, ciudadcol, idciudad, numero_cuenta, saldo FROM cliente inner join ciudad on (ciudad_idciudad = idciudad)inner join cuenta on (cc_cliente = cliente_cc_cliente )').on('result', function(data) {
@@ -68,6 +71,9 @@ io.sockets.on('connect', function(socket) {
 
     }
 
+    /**se extrar todas las ciudades que estan en la base de datos 
+     * para cargar un select 
+     */
     if (!ciudadi) {
         db.query('SELECT * FROM ciudad').on('result', function(datas) {
             ciudad.push(datas);
@@ -80,6 +86,10 @@ io.sockets.on('connect', function(socket) {
         socket.emit('ciudad', ciudad);
 
     }
+
+    /**se hace una consulta para extraer todos los tipo de moviemiento de la base de datos
+     * y se envian ala vista
+     */
 
     if (!tipoM) {
         db.query('SELECT * FROM tipo_movimiento').on('result', function(datas) {
@@ -94,6 +104,7 @@ io.sockets.on('connect', function(socket) {
 
     }
 
+    /** aqui se escucha un nuevo cliente y se inserta en la base de datos*/
 
     socket.on('nuevo cliente', function(data) {
         cliente.push(data);
