@@ -4,7 +4,7 @@ var io = require('socket.io').listen(3000)
     // Define our db creds
 var db = mysql.createConnection({
     host: 'localhost',
-    port: 3300,
+    port: 3306,
     user: 'root',
     password: '',
     database: 'banco',
@@ -33,6 +33,9 @@ var socketCount = 0;
 var tipoM = false;
 var tipoMov = [];
 
+cuenta = [];
+var sald = 0;
+
 
 io.sockets.on('connect', function(socket) {
 
@@ -54,6 +57,28 @@ io.sockets.on('connect', function(socket) {
     socket.on('nuevoMov', function(dato) {
         console.log(dato)
         db.query('INSERT INTO movimiento (valor_movimiento, fecha_mov, fk_dtipo_movimiento, fk_numero_cuenta) VALUES (' + dato.valor_movimiento + ', "' + dato.fecha_mov + '", ' + dato.fk_dtipo_movimiento + ', ' + dato.fk_numero_cuenta + ')');
+
+        db.query('SELECT * FROM cuenta').on('result', function(data) {
+            cuenta.push(data);
+
+            if (dato.fk_numero_cuenta == data.numero_cuenta) {
+                if (dato.fk_dtipo_movimiento == 2) {
+                    sald = parseFloat(dato.valor_movimiento) + data.saldo;
+                    db.query('UPDATE cuenta SET saldo = ' + sald + ' WHERE (numero_cuenta = ' + data.numero_cuenta + ')');
+                    cliente = [];
+                    db.query('SELECT cc_cliente, nombres, apellidos, direccion, email, ciudadcol, idciudad, numero_cuenta, saldo FROM cliente inner join ciudad on (ciudad_idciudad = idciudad)inner join cuenta on (cc_cliente = cliente_cc_cliente )').on('result', function(data) {
+                        cliente.push(data);
+                    }).on('end', function() {
+                        socket.emit('client', cliente);
+                    })
+                }
+
+            }
+
+            console.log(data);
+            console.log("saldo : " + sald);
+
+        })
     })
 
     /**estraer todos los clientes ya registrados en la base de datos */

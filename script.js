@@ -29,6 +29,7 @@ $(document).ready(function() {
                     // " <td class='btn'> " + '<i class="material-icons" id=' + data[i].cc_cliente + ' >control_point</i>' +
                     '</td></tr>';
             }
+
             $('#tbdy').html(tbody)
 
         })
@@ -56,8 +57,6 @@ $(document).ready(function() {
                         " <td> " + data[i].saldo + "</td> " +
                         " <td class='btn'> " + '<i class="material-icons" id=' + data[i].numero_cuenta + ' >control_point</i> ' +
                         '</td></tr>';
-
-
                     break;
                 }
 
@@ -66,7 +65,6 @@ $(document).ready(function() {
             if (cont == 0) {
                 swal("usuario no registrado");
             }
-            var val = $('#cedulaI').val('');
             $('#tableCliente').html(tbody);
 
 
@@ -204,6 +202,7 @@ $(document).ready(function() {
                 });
                 $('#monto').val('');
                 $('#selectt').val('');
+                getall();
 
                 swal({
                     title: "Realizado con exito!",
