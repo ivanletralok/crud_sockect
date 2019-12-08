@@ -1,6 +1,7 @@
 $(document).ready(function() {
     var socket = io.connect('http://localhost:3000');
 
+
     /**cantidad de usuario conectados */
     socket.on('users connected', function(data) {
         $('#usersConnected').html('Users connected: ' + data)
@@ -54,9 +55,10 @@ $(document).ready(function() {
                         " <td> " + data[i].direccion + "</td> " +
                         " <td> " + data[i].email + "</td> " +
                         " <td> " + data[i].numero_cuenta + "</td> " +
-                        " <td> " + data[i].saldo + "</td> " +
                         " <td class='btn'> " + '<i class="material-icons" id=' + data[i].numero_cuenta + ' >control_point</i> ' +
-                        '</td></tr>';
+                        '</td> ' +
+                        " <td class='btn2'> " + '<i class="material-icons" id=' + data[i].numero_cuenta + ' >local_atm</i> ' +
+                        '</td> </tr>';
                     break;
                 }
 
@@ -69,6 +71,12 @@ $(document).ready(function() {
 
 
         })
+
+    })
+
+    $('#consultar').click(function() {
+        console.log("consultar saldo");
+
 
     })
 
@@ -99,6 +107,8 @@ $(document).ready(function() {
         else tablaLLenas = true;
 
     });
+
+
 
 
 
@@ -174,8 +184,28 @@ $(document).ready(function() {
 
     var c = 0;
 
+
     /**aqui se inserta un nuevo movimiento en la base de datos
      */
+
+    var x = 0;
+    cont = 0;
+    var d;
+    $('table').delegate(".btn2", "click", function(e) {
+        var ids = e.target.id
+        socket.emit('saldo', ids);
+
+        socket.on('sel', function(d) {
+            cont++;
+
+            if (cont == 1) {
+                swal("su saldo es : " + d);
+                cont = 0;
+            }
+        })
+    });
+
+
     $('table').delegate(".btn", "click", function(e) {
 
         //  console.log(e.target.id)
